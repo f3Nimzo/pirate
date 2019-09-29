@@ -1,26 +1,44 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Home from "./components/Home/Home"
+import Cart from "./components/Cart/Cart"
+import {StateProvider} from "./state/state";
+import {BrowserRouter, Switch, Route} from "react-router-dom";
+import inventory from "./assets/inventory";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    // State context that contains information about current items in the cart
+    const initialState = {
+        purchasedItems: inventory
+    };
+
+    // Reducer that updates the purchased quantity of an item
+    const reducer = (state, action) => {
+        switch (action.type) {
+            case 'updateItemCount':
+                return {
+                    ...state,
+                    purchasedItems: state.purchasedItems.map((item) => {
+                        if (item.title === action.title) {
+                            return {...item, purchased: action.updatedNum}
+                        } else {
+                            return item;
+                        }
+                    })
+                };
+            default: return state;
+        }
+    };
+
+    return (
+        <StateProvider initialState={initialState} reducer={reducer}>
+            <BrowserRouter>
+                <Switch>
+                    <Route exact path="/" component={Home} />
+                    <Route path="/cart" component={Cart} />
+                </Switch>
+            </BrowserRouter>
+        </StateProvider>
+    );
 }
 
 export default App;
